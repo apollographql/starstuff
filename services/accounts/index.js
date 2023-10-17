@@ -13,15 +13,19 @@ const { parse } = require("graphql");
 
 const rateLimitTreshold = process.env.LIMIT || 5000;
 
-const typeDefs = parse(`
-  extend type Query {
+const typeDefs = parse(`#graphql
+  extend schema
+    @link(url: "https://specs.apollo.dev/federation/v2.3"
+          import: ["@key" "@shareable"])
+
+  type Query {
     me: User
   }
 
   type User @key(fields: "id") {
     id: ID!
     name: String
-    username: String
+    username: String @shareable
   }
 `);
 

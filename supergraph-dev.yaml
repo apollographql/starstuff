@@ -1,0 +1,18 @@
+federation_version: =2.5.6
+subgraphs:
+  accounts:
+    routing_url: http://localhost:4001/
+    schema:
+      subgraph_url: http://localhost:4001/
+  inventory:
+    routing_url: http://localhost:4004/
+    schema:
+      subgraph_url: http://localhost:4004/
+  products:
+    routing_url: http://localhost:4003/
+    schema:
+      subgraph_url: http://localhost:4003/
+  reviews:
+    routing_url: http://localhost:4002/
+    schema:
+      subgraph_url: http://localhost:4002/

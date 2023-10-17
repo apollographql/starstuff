@@ -13,8 +13,12 @@ const { parse } = require("graphql");
 
 const rateLimitTreshold = process.env.LIMIT || 5000;
 
-const typeDefs = parse(`
-  extend type Query {
+const typeDefs = parse(`#graphql
+  extend schema
+    @link(url: "https://specs.apollo.dev/federation/v2.3"
+          import: ["@key"])
+
+  type Query {
     topProducts(first: Int = 5): [Product]
   }
 

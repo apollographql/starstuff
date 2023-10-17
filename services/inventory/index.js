@@ -13,9 +13,13 @@ const { parse } = require("graphql");
 
 const rateLimitTreshold = process.env.LIMIT || 5000;
 
-const typeDefs = parse(`
-  extend type Product @key(fields: "upc") {
-    upc: String! @external
+const typeDefs = parse(`#graphql
+  extend schema
+    @link(url: "https://specs.apollo.dev/federation/v2.3"
+          import: ["@key" "@external" "@requires"])
+
+  type Product @key(fields: "upc") {
+    upc: String!
     weight: Int @external
     price: Int @external
     inStock: Boolean
