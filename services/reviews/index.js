@@ -34,6 +34,7 @@ const typeDefs = parse(`#graphql
   type Product @key(fields: "upc") {
     upc: String!
     reviews: [Review]
+    reviewsForAuthor(authorID: ID!): [Review]
   }
 `);
 
@@ -58,6 +59,12 @@ const resolvers = {
   Product: {
     reviews(product) {
       return reviews.filter((review) => review.product.upc === product.upc);
+    },
+    reviewsForAuthor(product, { authorID }) {
+      return reviews.filter(
+        (review) =>
+          review.product.upc === product.upc && review.authorID === authorID
+      );
     },
   },
 };

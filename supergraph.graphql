@@ -54,6 +54,7 @@ type Product
   shippingEstimate: Int @join__field(graph: INVENTORY, requires: "price weight")
   name: String @join__field(graph: PRODUCTS)
   reviews: [Review] @join__field(graph: REVIEWS)
+  reviewsForAuthor(authorID: ID!): [Review] @join__field(graph: REVIEWS)
 }
 
 type Query
