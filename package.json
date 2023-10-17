@@ -8,10 +8,10 @@
     "nodemon": "^2.0.15"
   },
   "scripts": {
-    "subgraph:accounts": "npm run start --workspace=accounts",
-    "subgraph:inventory": "npm run start --workspace=inventory",
-    "subgraph:products": "npm run start --workspace=products",
-    "subgraph:reviews": "npm run start --workspace=reviews",
+    "subgraph:accounts": "npm run dev --workspace=accounts",
+    "subgraph:inventory": "npm run dev --workspace=inventory",
+    "subgraph:products": "npm run dev --workspace=products",
+    "subgraph:reviews": "npm run dev --workspace=reviews",
     "subgraphs": "concurrently \"npm:subgraph:*\""
   }
 }
