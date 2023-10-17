@@ -1,15 +1,19 @@
-const { ApolloServer, gql } = require("apollo-server-express");
+const { ApolloServer } = require("@apollo/server");
+const { expressMiddleware } = require("@apollo/server/express4");
 const { buildSubgraphSchema } = require("@apollo/subgraph");
-const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core");
+const {
+  ApolloServerPluginDrainHttpServer,
+} = require("@apollo/server/plugin/drainHttpServer");
 const rateLimit = require("express-rate-limit");
 const express = require("express");
 const http = require("http");
-const { ApolloServerPluginInlineTraceDisabled } = require("apollo-server-core");
+const { json } = require("body-parser");
 const cors = require("cors");
+const { parse } = require("graphql");
 
 const rateLimitTreshold = process.env.LIMIT || 5000;
 
-const typeDefs = gql`
+const typeDefs = parse(`
   type Review @key(fields: "id") {
     id: ID!
     body: String
@@ -27,7 +31,7 @@ const typeDefs = gql`
     upc: String! @external
     reviews: [Review]
   }
-`;
+`);
 
 const resolvers = {
   Review: {
@@ -106,25 +110,17 @@ async function startApolloServer(typeDefs, resolvers) {
         resolvers,
       },
     ]),
-    plugins: [
-      ApolloServerPluginInlineTraceDisabled(),
-      ApolloServerPluginDrainHttpServer({ httpServer }),
-    ],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await server.start();
-  server.applyMiddleware({
-    app,
-    path: "/",
-  });
+  app.use("/", cors(), json(), limiter, expressMiddleware(server));
 
   // Modified server startup
   const port = process.env.PORT || 4002;
 
   await new Promise((resolve) => httpServer.listen({ port }, resolve));
-  console.log(
-    `🚀 Reviews Server ready at http://localhost:${port}${server.graphqlPath}`
-  );
+  console.log(`🚀 Reviews Server ready at http://localhost:${port}/`);
 }
 
 startApolloServer(typeDefs, resolvers);

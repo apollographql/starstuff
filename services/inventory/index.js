@@ -1,15 +1,19 @@
-const { ApolloServer, gql } = require("apollo-server-express");
+const { ApolloServer } = require("@apollo/server");
+const { expressMiddleware } = require("@apollo/server/express4");
 const { buildSubgraphSchema } = require("@apollo/subgraph");
-const { ApolloServerPluginDrainHttpServer } = require("apollo-server-core");
+const {
+  ApolloServerPluginDrainHttpServer,
+} = require("@apollo/server/plugin/drainHttpServer");
 const rateLimit = require("express-rate-limit");
 const express = require("express");
 const http = require("http");
-const { ApolloServerPluginInlineTraceDisabled } = require("apollo-server-core");
+const { json } = require("body-parser");
 const cors = require("cors");
+const { parse } = require("graphql");
 
 const rateLimitTreshold = process.env.LIMIT || 5000;
 
-const typeDefs = gql`
+const typeDefs = parse(`
   extend type Product @key(fields: "upc") {
     upc: String! @external
     weight: Int @external
@@ -17,7 +21,7 @@ const typeDefs = gql`
     inStock: Boolean
     shippingEstimate: Int @requires(fields: "price weight")
   }
-`;
+`);
 
 const resolvers = {
   Product: {
@@ -51,9 +55,6 @@ async function startApolloServer(typeDefs, resolvers) {
     max: rateLimitTreshold,
   });
 
-  app.use(cors());
-  app.use(limiter);
-
   const httpServer = http.createServer(app);
 
   const server = new ApolloServer({
@@ -63,25 +64,17 @@ async function startApolloServer(typeDefs, resolvers) {
         resolvers,
       },
     ]),
-    plugins: [
-      ApolloServerPluginInlineTraceDisabled(),
-      ApolloServerPluginDrainHttpServer({ httpServer }),
-    ],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
   await server.start();
-  server.applyMiddleware({
-    app,
-    path: "/",
-  });
+  app.use("/", cors(), json(), limiter, expressMiddleware(server));
 
   // Modified server startup
   const port = process.env.PORT || 4004;
 
   await new Promise((resolve) => httpServer.listen({ port }, resolve));
-  console.log(
-    `🚀 Inventory Server ready at http://localhost:${port}${server.graphqlPath}`
-  );
+  console.log(`🚀 Inventory Server ready at http://localhost:${port}/`);
 }
 
 startApolloServer(typeDefs, resolvers);
