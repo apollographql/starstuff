@@ -1,10 +1,10 @@
-## Apollo Federation Demo
+## Starstuff Demo
 
-This repository is a demo of using Apollo Federation, used in the [Apollo Router Quickstart](https://www.apollographql.com/docs/router/quickstart/).
+This repository is used in the [Apollo Router Quickstart](https://www.apollographql.com/docs/router/quickstart/).
 
 ### Installation
 
-To run this demo locally, pull down the repository then run the following commands:
+To run this locally, pull down the repository then run the following commands:
 
 ```sh
 npm install
