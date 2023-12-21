@@ -18,6 +18,10 @@ const typeDefs = parse(`#graphql
     @link(url: "https://specs.apollo.dev/federation/v2.3"
           import: ["@key" "@external" "@provides"])
 
+  type Mutation {
+    createReview(upc: ID!, id: ID!, body: String): Review
+  }
+
   type Review @key(fields: "id") {
     id: ID!
     body: String
@@ -65,6 +69,15 @@ const resolvers = {
         (review) =>
           review.product.upc === product.upc && review.authorID === authorID
       );
+    },
+  },
+  Mutation: {
+    createReview(p, args) {
+      return {
+        id: args.id,
+        body: args.body,
+        product: { upc: args.upc },
+      };
     },
   },
 };
