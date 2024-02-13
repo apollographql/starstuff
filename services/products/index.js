@@ -22,6 +22,10 @@ const typeDefs = parse(`#graphql
     topProducts(first: Int = 5): [Product]
   }
 
+  type Mutation {
+    createProduct(upc: ID!, name: String): Product
+  }
+
   type Product @key(fields: "upc") {
     upc: String!
     name: String
@@ -60,6 +64,14 @@ const resolvers = {
   Query: {
     topProducts(_, args) {
       return products.slice(0, args.first);
+    },
+  },
+  Mutation: {
+    createProduct(_, args) {
+      return {
+        upc: args.upc,
+        name: args.name,
+      };
     },
   },
 };
