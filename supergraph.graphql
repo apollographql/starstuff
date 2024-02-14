@@ -52,6 +52,7 @@ type Mutation
 }
 
 type Product
+  @join__type(graph: ACCOUNTS, key: "upc", extension: true)
   @join__type(graph: INVENTORY, key: "upc")
   @join__type(graph: PRODUCTS, key: "upc")
   @join__type(graph: REVIEWS, key: "upc")
@@ -73,6 +74,7 @@ type Query
   @join__type(graph: REVIEWS)
 {
   me: User @join__field(graph: ACCOUNTS)
+  recommendedProducts: [Product] @join__field(graph: ACCOUNTS)
   topProducts(first: Int = 5): [Product] @join__field(graph: PRODUCTS)
 }
 
