@@ -83,9 +83,7 @@ const resolvers = {
   Subscription: {
     productUpdate: {
       subscribe: async function* () {
-        console.log("starting subscription");
-        let count = 0;
-        while (true) {
+        for(count = 0; count < 20; count++){
           let product = products[Math.floor(Math.random()*products.length)];
           let newProduct = {
             upc: product.upc,
@@ -95,13 +93,7 @@ const resolvers = {
           }
 
           yield { productUpdate: newProduct };
-          console.log("sent event");
           await new Promise((resolve) => setTimeout(resolve, 3000));
-
-          // these test subscriptions will not run indefinitely
-          if(count++ == 20) {
-            break;
-          }
         }
       },
     },
