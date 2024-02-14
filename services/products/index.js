@@ -59,16 +59,26 @@ const products = [
     price: 54,
     weight: 50,
   },
+  {
+    upc: "4",
+    name: "Bed",
+    price: 1000,
+    weight: 1200
+  }
 ];
 
 const resolvers = {
   Product: {
-    __resolveReference(object) {
-      return products.find((product) => product.upc === object.upc);
+    __resolveReference(object, _, info) {
+      info.cacheControl.setCacheHint({ maxAge: 60 });
+
+      return products.find(product => product.upc === object.upc);
     },
   },
   Query: {
-    topProducts(_, args) {
+    topProducts(parent, args, contextValue, info)  {
+      info.cacheControl.setCacheHint({ maxAge: 60 });
+
       return products.slice(0, args.first);
     },
   },
