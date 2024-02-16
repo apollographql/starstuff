@@ -93,7 +93,7 @@ const resolvers = {
   Subscription: {
     productUpdate: {
       subscribe: async function* () {
-        for(count = 0; count < 20; count++){
+        for (let count = 0; count < 20; count++) {
           let product = products[Math.floor(Math.random()*products.length)];
           let newProduct = {
             upc: product.upc,
