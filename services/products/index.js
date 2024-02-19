@@ -1,3 +1,4 @@
+"use strict";
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const { buildSubgraphSchema } = require("@apollo/subgraph");
@@ -12,6 +13,8 @@ const cors = require("cors");
 const { parse } = require("graphql");
 const { WebSocketServer } = require("ws");
 const { useServer } = require("graphql-ws/lib/use/ws");
+const { setTimeout } = require("node:timers/promises");
+
 
 const rateLimitTreshold = process.env.LIMIT || 5000;
 
@@ -103,7 +106,7 @@ const resolvers = {
           }
 
           yield { productUpdate: newProduct };
-          await new Promise((resolve) => setTimeout(resolve, 3000));
+          await setTimeout(3000);
         }
       },
     },
