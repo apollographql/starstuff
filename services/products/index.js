@@ -22,6 +22,10 @@ const typeDefs = parse(`#graphql
     topProducts(first: Int = 5): [Product]
   }
 
+  type Mutation {
+    createProduct(upc: ID!, name: String): Product
+  }
+
   type Product @key(fields: "upc") {
     upc: String!
     name: String
@@ -49,17 +53,35 @@ const products = [
     price: 54,
     weight: 50,
   },
+  {
+    upc: "4",
+    name: "Bed",
+    price: 1000,
+    weight: 1200
+  }
 ];
 
 const resolvers = {
   Product: {
-    __resolveReference(object) {
-      return products.find((product) => product.upc === object.upc);
+    __resolveReference(object, _, info) {
+      info.cacheControl.setCacheHint({ maxAge: 60 });
+
+      return products.find(product => product.upc === object.upc);
     },
   },
   Query: {
-    topProducts(_, args) {
+    topProducts(parent, args, contextValue, info)  {
+      info.cacheControl.setCacheHint({ maxAge: 60 });
+
       return products.slice(0, args.first);
+    },
+  },
+  Mutation: {
+    createProduct(_, args) {
+      return {
+        upc: args.upc,
+        name: args.name,
+      };
     },
   },
 };
@@ -82,6 +104,7 @@ async function startApolloServer(typeDefs, resolvers) {
         resolvers,
       },
     ]),
+    allowBatchedHttpRequests: true,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 

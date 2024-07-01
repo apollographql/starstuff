@@ -16,16 +16,21 @@ const rateLimitTreshold = process.env.LIMIT || 5000;
 const typeDefs = parse(`#graphql
   extend schema
     @link(url: "https://specs.apollo.dev/federation/v2.3"
-          import: ["@key" "@shareable"])
+          import: ["@key" "@shareable" "@external"])
 
   type Query {
     me: User
+    recommendedProducts: [Product]
   }
 
   type User @key(fields: "id") {
     id: ID!
     name: String
     username: String @shareable
+  }
+
+  extend type Product @key(fields: "upc") {
+    upc: String! @external
   }
 `);
 
@@ -46,12 +51,20 @@ const users = [
 
 const resolvers = {
   Query: {
-    me() {
+    me(parent, args, contextValue, info) {
+      info.cacheControl.setCacheHint({maxAge: 60, scope: 'PRIVATE' });
       return users[0];
     },
+    recommendedProducts(parent, args, contextValue, info) {
+      info.cacheControl.setCacheHint({ maxAge: 10, scope: 'PRIVATE' });
+
+      let products = [{ upc: "1"}, { upc: "2"}, { upc: "3"}, { upc: "4"}].sort(() => Math.random() - Math.random()).slice(0, 2);
+      return products;
+    }
   },
   User: {
-    __resolveReference(object) {
+    __resolveReference(object, _, info) {
+      info.cacheControl.setCacheHint({ maxAge: 60 });
       return users.find((user) => user.id === object.id);
     },
   },
@@ -75,6 +88,7 @@ async function startApolloServer(typeDefs, resolvers) {
         resolvers,
       },
     ]),
+    allowBatchedHttpRequests: true,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 

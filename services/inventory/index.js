@@ -29,7 +29,9 @@ const typeDefs = parse(`#graphql
 
 const resolvers = {
   Product: {
-    __resolveReference(object) {
+    __resolveReference(object,_,info) {
+      info.cacheControl.setCacheHint({ maxAge: 60 });
+
       return {
         ...object,
         ...inventory.find((product) => product.upc === object.upc),
@@ -48,6 +50,7 @@ const inventory = [
   { upc: "1", inStock: true },
   { upc: "2", inStock: false },
   { upc: "3", inStock: true },
+  { upc: "4", inStock: false }
 ];
 
 async function startApolloServer(typeDefs, resolvers) {
@@ -68,6 +71,7 @@ async function startApolloServer(typeDefs, resolvers) {
         resolvers,
       },
     ]),
+    allowBatchedHttpRequests: true,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 

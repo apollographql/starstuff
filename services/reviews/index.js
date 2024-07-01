@@ -18,6 +18,10 @@ const typeDefs = parse(`#graphql
     @link(url: "https://specs.apollo.dev/federation/v2.3"
           import: ["@key" "@external" "@provides"])
 
+  type Mutation {
+    createReview(upc: ID!, id: ID!, body: String): Review
+  }
+
   type Review @key(fields: "id") {
     id: ID!
     body: String
@@ -41,7 +45,8 @@ const typeDefs = parse(`#graphql
 const resolvers = {
   Review: {
     author(review) {
-      return { __typename: "User", id: review.authorID };
+      const found = reviews.find(r => r.id === review.id);
+      return found ? { __typename: "User", id: found.authorID } : null;
     },
   },
   User: {
@@ -65,6 +70,15 @@ const resolvers = {
         (review) =>
           review.product.upc === product.upc && review.authorID === authorID
       );
+    },
+  },
+  Mutation: {
+    createReview(p, args) {
+      return {
+        id: args.id,
+        body: args.body,
+        product: { upc: args.upc },
+      };
     },
   },
 };
@@ -121,6 +135,7 @@ async function startApolloServer(typeDefs, resolvers) {
         resolvers,
       },
     ]),
+    allowBatchedHttpRequests: true,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
