@@ -4,6 +4,7 @@ schema
 {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
@@ -85,6 +86,12 @@ type Review
   body: String
   author: User @join__field(graph: REVIEWS, provides: "username")
   product: Product
+}
+
+type Subscription
+  @join__type(graph: PRODUCTS)
+{
+  productUpdate: Product
 }
 
 type User
