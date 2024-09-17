@@ -12,7 +12,7 @@ kill_timeout = "5s"
   auto_rollback = true
 
 [build]
-  builder = "heroku/buildpacks:20"
+  dockerfile = "Dockerfile"
 
 [env]
   PORT = "8080"
@@ -25,7 +25,7 @@ kill_timeout = "5s"
   internal_port = 8080
   auto_stop_machines = true
   auto_start_machines = true
-  min_machines_running = 3
+  min_machines_running = 1
   processes = ["app"]
 
   [[services.ports]]

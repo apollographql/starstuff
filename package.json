@@ -4,8 +4,8 @@
     "services/*"
   ],
   "devDependencies": {
-    "concurrently": "^8.2.1",
-    "nodemon": "^2.0.15"
+    "concurrently": "8.2.2",
+    "nodemon": "2.0.22"
   },
   "scripts": {
     "subgraph:accounts": "npm run dev --workspace=accounts",
