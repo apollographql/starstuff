@@ -1,3 +1,4 @@
+"use strict";
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const { buildSubgraphSchema } = require("@apollo/subgraph");
@@ -10,6 +11,10 @@ const http = require("http");
 const { json } = require("body-parser");
 const cors = require("cors");
 const { parse } = require("graphql");
+const { WebSocketServer } = require("ws");
+const { useServer } = require("graphql-ws/lib/use/ws");
+const { setTimeout } = require("node:timers/promises");
+
 
 const rateLimitTreshold = process.env.LIMIT || 5000;
 
@@ -24,6 +29,10 @@ const typeDefs = parse(`#graphql
 
   type Mutation {
     createProduct(upc: ID!, name: String): Product
+  }
+
+  type Subscription {
+    productUpdate: Product
   }
 
   type Product @key(fields: "upc") {
@@ -84,6 +93,24 @@ const resolvers = {
       };
     },
   },
+  Subscription: {
+    productUpdate: {
+      subscribe: async function* () {
+        for (let count = 0; count < 20; count++) {
+          let product = products[Math.floor(Math.random()*products.length)];
+          let newProduct = {
+            upc: product.upc,
+            name: product.name,
+            price: Math.floor(Math.random() * 2000),
+            weight: Math.floor(Math.random() * 1000)
+          }
+
+          yield { productUpdate: newProduct };
+          await setTimeout(3000);
+        }
+      },
+    },
+  },
 };
 
 async function startApolloServer(typeDefs, resolvers) {
@@ -95,17 +122,34 @@ async function startApolloServer(typeDefs, resolvers) {
     max: rateLimitTreshold,
   });
 
+  const schema = buildSubgraphSchema([
+    {
+      typeDefs,
+      resolvers,
+    },
+  ]);
   const httpServer = http.createServer(app);
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/subscriptions",
+  });
+  const serverCleanup = useServer({ schema }, wsServer);
 
   const server = new ApolloServer({
-    schema: buildSubgraphSchema([
-      {
-        typeDefs,
-        resolvers,
-      },
-    ]),
+    schema,
     allowBatchedHttpRequests: true,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer },
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    )],
   });
 
   await server.start();
