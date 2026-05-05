@@ -7,7 +7,7 @@
  *
  *   const limiter = rateLimit({
  *     windowMs: 60 * 60 * 1000, // 1 hour
- *     max: rateLimitTreshold,    // env LIMIT || 5000
+ *     max: rateLimitThreshold,    // env LIMIT || 5000
  *   });
  *
  * This test suite:
@@ -21,7 +21,7 @@
 
 "use strict";
 
-const { describe, it, before, after } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const http = require("http");
 const express = require("express");
@@ -142,7 +142,7 @@ describe("1. Core rate-limiting functionality", () => {
 // BEFORE (v5): The option was called `max`.
 // AFTER  (v8): The option is called `limit`; `max` still works but is deprecated.
 //
-// The current services pass `max: rateLimitTreshold`.
+// The current services pass `limit: rateLimitThreshold`.
 // v8 accepts this via: `limit: passedOptions.max ?? 5`
 // so no functional regression occurs, but `limit` is now the canonical name.
 

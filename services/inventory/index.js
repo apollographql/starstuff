@@ -11,7 +11,7 @@ const { json } = require("body-parser");
 const cors = require("cors");
 const { parse } = require("graphql");
 
-const rateLimitTreshold = process.env.LIMIT || 5000;
+const rateLimitThreshold = process.env.LIMIT || 5000;
 
 const typeDefs = parse(`#graphql
   extend schema
@@ -59,7 +59,7 @@ async function startApolloServer(typeDefs, resolvers) {
 
   const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
-    limit: rateLimitTreshold,
+    limit: rateLimitThreshold,
   });
 
   const httpServer = http.createServer(app);
