@@ -120,7 +120,7 @@ async function startApolloServer(typeDefs, resolvers) {
 
   const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: rateLimitTreshold,
+    limit: rateLimitTreshold,
   });
 
   app.use(cors());

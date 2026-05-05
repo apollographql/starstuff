@@ -12,6 +12,7 @@
     "subgraph:inventory": "npm run dev --workspace=inventory",
     "subgraph:products": "npm run dev --workspace=products",
     "subgraph:reviews": "npm run dev --workspace=reviews",
-    "subgraphs": "concurrently \"npm:subgraph:*\""
+    "subgraphs": "concurrently \"npm:subgraph:*\"",
+    "test": "npm test --workspaces"
   }
 }
