@@ -5,7 +5,7 @@
   ],
   "devDependencies": {
     "concurrently": "9.2.1",
-    "nodemon": "3.1.9"
+    "nodemon": "3.1.14"
   },
   "scripts": {
     "subgraph:accounts": "npm run dev --workspace=accounts",
